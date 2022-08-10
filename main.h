@@ -1,8 +1,5 @@
 #ifndef MAIN_H
 #define MAIN_H
-
-#define END '\0'
-
 #include <stdio.h>
 #include <limits.h>
 #include <stdarg.h>
