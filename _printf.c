@@ -1,75 +1,52 @@
 #include "main.h"
 
 /**
+ * _printf - prints anything
+ * @format: the format string
  *
- *  * _strlen - Returns the length of a string
- *
- *   * @s: The string
- *
- *    *
- *
- *     * Return: The length of the string
- *
- *      */
-int _strlen(const char *s)
-{
-	int len = 0;
-
-	while (s[len])
-		len++;
-
-	return (len);
-}
-/**
- *
- *  * _printf - prints anything
- *
- *   * @format: the format string
- *
- *    *
- *
- *     * Return: the number of characters printed
- *
- *      */
+ * Return: the number of characters printed
+ */
 int _printf(const char *format, ...)
 {
-	va_list args;
-	printer printer;
 	int i = 0;
-	int characters_printed = 0;
+	int printed = 0;
+	va_list args;
 
-	if (format == NULL)
-		return (-1);
+
 	va_start(args, format);
 	while (format[i])
 	{
-		for (; format[i] != '%' && format[i]; i++)
+		if (format[i] == '%')
+		{
+			switch (format[i + 1])
+			{
+				case 'c':
+					printed += _print_char(args);
+					i += 2;
+					break;
+				case '%':
+					_putchar('%');
+					printed++;
+					i += 2;
+					break;
+				case 's':
+					printed += _print_string(args);
+					i += 2;
+					break;
+				default:
+					_putchar(format[i]);
+					_putchar(format[i + 1]);
+					i += 2;
+			}
+		}
+		if (format[i])
 		{
 			_putchar(format[i]);
-			characters_printed++;
-		}
-		if (!format[i])
-			return (characters_printed);
-		if (format[i] == '%' && _strlen(format) == 1)
-			return (-1);
-		printer = _get_printer(&format[i + 1]);
-		if (printer.specifier != NULL)
-		{
-			characters_printed += printer.run(args);
-			i += 2; /* move past the specifier */
-			continue;
-		}
-		if (!format[i + 1])
-			return (characters_printed);
+			printed++;
 
-		_putchar(format[i]);
-		characters_printed++;
-
-		if (format[i + 1] == '%')
-			i += 2; /* move past the % */
-		else
-			i++;
+		}
+		i++;
 	}
 	va_end(args);
-	return (characters_printed);
+	return (printed);
 }
