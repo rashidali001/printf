@@ -1,67 +1,51 @@
 #include "main.h"
 
 /**
- * _strlen - Returns the length of a string
- * @s: The string
+ * _printf - formatted output conversion and print data.
+ * @format: input string.
  *
- * Return: The length of the string
- */
-int _strlen(const char *s)
-{
-	int len = 0;
-
-	while (s[len])
-		len++;
-
-	return (len);
-}
-
-/**
- * _printf - prints anything
- * @format: the format string
- *
- * Return: the number of characters printed
+ * Return: number of chars printed.
  */
 int _printf(const char *format, ...)
 {
-	va_list args;
-	printer printer;
-	int i = 0;
-	int characters_printed = 0;
+	unsigned int i = 0, len = 0, ibuf = 0;
+	va_list arguments;
+	int (*function)(va_list, char *, unsigned int);
+	char *buffer;
 
-	if (format == NULL)
+	va_start(arguments, format), buffer = malloc(sizeof(char) * 1024);
+	if (!format || !buffer || (format[i] == '%' && !format[i + 1]))
 		return (-1);
-	va_start(args, format);
-	while (format[i])
+	if (!format[i])
+		return (0);
+	for (i = 0; format && format[i]; i++)
 	{
-		for (; format[i] != '%' && format[i]; i++)
+		if (format[i] == '%')
 		{
-			_putchar(format[i]);
-			characters_printed++;
+			if (format[i + 1] == '\0')
+			{	print_buf(buffer, ibuf), free(buffer), va_end(arguments);
+				return (-1);
+			}
+			else
+			{	function = get_print_func(format, i + 1);
+				if (function == NULL)
+				{
+					if (format[i + 1] == ' ' && !format[i + 2])
+						return (-1);
+					handl_buf(buffer, format[i], ibuf), len++, i--;
+				}
+				else
+				{
+					len += function(arguments, buffer, ibuf);
+					i += ev_print_func(format, i + 1);
+				}
+			} i++;
 		}
-		if (!format[i])
-			return (characters_printed);
-		if (format[i] == '%' && _strlen(format) == 1)
-			return (-1);
-		printer = _get_printer(&format[i + 1]);
-		if (printer.specifier != NULL)
-		{
-			characters_printed += printer.run(args);
-			i += 2; /* move past the specifier */
-			continue;
-		}
-
-		if (!format[i + 1])
-			return (characters_printed);
-
-		_putchar(format[i]);
-		characters_printed++;
-
-		if (format[i + 1] == '%')
-			i += 2; /* move past the % */
 		else
-			i++;
+			handl_buf(buffer, format[i], ibuf), len++;
+		for (ibuf = len; ibuf > 1024; ibuf -= 1024)
+			;
 	}
-	va_end(args);
-	return (characters_printed);
+	print_buf(buffer, ibuf), free(buffer), va_end(arguments);
+	return (len);
 }
