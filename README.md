@@ -1,1 +1,1 @@
-Printf project done by rashidali001 and priscah-orori
+Implementation of a printf program in c
